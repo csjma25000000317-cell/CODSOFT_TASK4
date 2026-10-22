@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL NIDS | Security Operations</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-icon">⬡</div>
+      <div>
+        <h2>SENTINEL<span>.</span></h2>
+        <small>NETWORK DEFENSE</small>
+      </div>
+    </div>
+
+    <div class="nav-label">WORKSPACE</div>
+    <nav>
+      <button class="nav-item active" data-page="overview"><span>◈</span> Overview</button>
+      <button class="nav-item" data-page="traffic"><span>⌁</span> Network Traffic</button>
+      <button class="nav-item" data-page="threats"><span>⬡</span> Threat Intelligence <b id="nav-alert-count">0</b></button>
+      <button class="nav-item" data-page="rules"><span>⚙</span> Detection Rules</button>
+      <button class="nav-item" data-page="reports"><span>▤</span> Reports & Logs</button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="sensor-card">
+        <span class="pulse-dot"></span>
+        <div><strong>ENGINE STATUS</strong><small id="engine-status">Ready for tests</small></div>
+      </div>
+      <button class="nav-item" data-page="about"><span>ⓘ</span> About Project</button>
+      <small class="side-version">SENTINEL NIDS · v1.0.0</small>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button id="menu-toggle" class="icon-button" aria-label="Toggle menu">☰</button>
+      <div class="breadcrumb">Security Operations <span>/</span> <strong id="page-breadcrumb">Overview</strong></div>
+      <div class="top-actions">
+        <span class="environment"><i></i> LOCAL ENVIRONMENT</span>
+        <button class="icon-button" id="refresh-btn" title="Refresh data">⟳</button>
+      </div>
+    </header>
+
+    <section class="page active" id="page-overview">
+      <div class="hero">
+        <div>
+          <div class="eyebrow"><span class="pulse-dot"></span> NETWORK SECURITY CENTER</div>
+          <h1>See threats.<br><span>Stop surprises.</span></h1>
+          <p>Monitor analyzed network events and investigate suspicious activity from one workspace.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-a"></div>
+          <div class="orbit orbit-b"></div>
+          <div class="orbit orbit-c"></div>
+          <div class="core-shield">⬡<span>✓</span></div>
+          <div class="orbit-label label-top">PACKET ANALYSIS</div>
+          <div class="orbit-label label-bottom">THREAT DETECTION</div>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div><h2>Security overview</h2><p>Your current analysis workspace at a glance.</p></div>
+        <span class="live-tag"><i></i> API CONNECTED</span>
+      </div>
+
+      <div class="stats-grid">
+        <article class="stat-card" style="--accent:#5eead4">
+          <div class="stat-top"><span>Total Events</span><span class="stat-icon">⌁</span></div>
+          <div class="stat-value" id="total-events">0</div>
+          <div class="stat-foot">Events analyzed by this app</div>
+        </article>
+        <article class="stat-card" style="--accent:#fb7185">
+          <div class="stat-top"><span>Threat Alerts</span><span class="stat-icon">⚠</span></div>
+          <div class="stat-value" id="total-alerts">0</div>
+          <div class="stat-foot">Detection rule matches</div>
+        </article>
+        <article class="stat-card" style="--accent:#a78bfa">
+          <div class="stat-top"><span>TCP Events</span><span class="stat-icon">⇄</span></div>
+          <div class="stat-value" id="tcp-events">0</div>
+          <div class="stat-foot">TCP protocol records</div>
+        </article>
+        <article class="stat-card" style="--accent:#fbbf24">
+          <div class="stat-top"><span>UDP Events</span><span class="stat-icon">↗</span></div>
+          <div class="stat-value" id="udp-events">0</div>
+          <div class="stat-foot">UDP protocol records</div>
+        </article>
+      </div>
+
+      <div class="content-grid">
+        <article class="panel chart-panel">
+          <div class="panel-heading"><div><h3>Protocol distribution</h3><p>Based on analyzed events</p></div><span class="chart-badge">ANALYTICS</span></div>
+          <div class="chart-wrap"><canvas id="protocol-chart"></canvas><div id="chart-empty" class="chart-empty">Analyze an event to populate the chart.</div></div>
+          <div class="chart-legend"><span><i class="legend-tcp"></i> TCP</span><span><i class="legend-udp"></i> UDP</span><span><i class="legend-icmp"></i> ICMP</span></div>
+        </article>
+        <article class="panel quick-panel">
+          <div class="panel-heading"><div><h3>Quick actions</h3><p>Investigate your workspace</p></div><span>✦</span></div>
+          <button class="action-card" data-go="traffic"><span class="action-icon cyan">⌁</span><span><strong>Analyze traffic</strong><small>Submit a network event</small></span><b>→</b></button>
+          <button class="action-card" data-go="threats"><span class="action-icon red">⚠</span><span><strong>Review alerts</strong><small>Inspect detection matches</small></span><b>→</b></button>
+          <button class="action-card" data-go="reports"><span class="action-icon purple">▤</span><span><strong>Export records</strong><small>Download event history</small></span><b>→</b></button>
+          <div class="notice"><span>ⓘ</span><p>This workspace currently analyzes submitted test events. Live capture is not enabled.</p></div>
+        </article>
+      </div>
+
+      <article class="panel recent-panel">
+        <div class="panel-heading"><div><h3>Recent network events</h3><p>Latest events submitted for analysis</p></div><button class="text-button" data-go="traffic">View all →</button></div>
+        <div class="table-scroll"><table><thead><tr><th>Source IP</th><th>Destination IP</th><th>Protocol</th><th>Port</th><th>Source</th></tr></thead><tbody id="recent-events"><tr><td colspan="5" class="empty-cell">No events yet. Submit one from Network Traffic.</td></tr></tbody></table></div>
+      </article>
+    </section>
+
+    <section class="page" id="page-traffic">
+      <div class="page-heading"><div><div class="eyebrow">EVENT INSPECTION</div><h1>Network <span>Traffic</span></h1><p>Submit a test event to evaluate the configured detection logic.</p></div><span class="live-tag"><i></i> MANUAL ANALYSIS</span></div>
+      <div class="content-grid traffic-grid">
+        <article class="panel">
+          <div class="panel-heading"><div><h3>Analyze an event</h3><p>Provide the event fields below.</p></div><span class="stat-icon">⌁</span></div>
+          <form id="analyze-form" class="analyze-form">
+            <label>Source IP address<input name="src_ip" placeholder="192.168.1.10" required value="192.168.1.10"></label>
+            <label>Destination IP address<input name="dst_ip" placeholder="192.168.1.20" required value="192.168.1.20"></label>
+            <div class="form-row">
+              <label>Protocol<select name="protocol"><option>TCP</option><option>UDP</option><option>ICMP</option></select></label>
+              <label>Destination port<input name="dst_port" type="number" min="0" max="65535" value="443" required></label>
+            </div>
+            <button class="primary-button" type="submit"><span>⌁</span> Analyze event <b>→</b></button>
+            <p class="form-hint">This submits a record to the local app; it does not send network traffic.</p>
+          </form>
+          <div id="analysis-result" class="result-box hidden"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-heading"><div><h3>Analysis pipeline</h3><p>How a submitted event is handled</p></div></div>
+          <div class="pipeline">
+            <div class="pipeline-step"><span>01</span><div><strong>Event received</strong><small>Validate required fields</small></div><i>✓</i></div>
+            <div class="pipeline-line"></div>
+            <div class="pipeline-step"><span>02</span><div><strong>Rule evaluation</strong><small>Check configured port pattern</small></div><i>⌁</i></div>
+            <div class="pipeline-line"></div>
+            <div class="pipeline-step"><span>03</span><div><strong>Record & alert</strong><small>Store event and any match</small></div><i>↗</i></div>
+          </div>
+          <div class="notice"><span>ⓘ</span><p>Only submitted events are analyzed. This is not a live packet capture engine yet.</p></div>
+        </article>
+      </div>
+      <article class="panel"><div class="panel-heading"><div><h3>Event records</h3><p>Recent submitted records</p></div><button class="text-button" id="traffic-refresh">Refresh ↻</button></div><div class="table-scroll"><table><thead><tr><th>Timestamp</th><th>Source IP</th><th>Destination IP</th><th>Protocol</th><th>Port</th></tr></thead><tbody id="traffic-events"><tr><td colspan="5" class="empty-cell">No records found.</td></tr></tbody></table></div></article>
+    </section>
+
+    <section class="page" id="page-threats">
+      <div class="page-heading"><div><div class="eyebrow">SECURITY INVESTIGATION</div><h1>Threat <span>Intelligence</span></h1><p>Investigate alerts generated by the configured detection engine.</p></div><span class="severity-tag">RULE-BASED</span></div>
+      <div class="notice"><span>ⓘ</span><p>An alert indicates a rule match, not confirmed malicious activity. Review context before drawing conclusions.</p></div>
+      <article class="panel"><div class="panel-heading"><div><h3>Detection alerts</h3><p id="alert-summary">No alerts loaded.</p></div><button class="text-button" id="alerts-refresh">Refresh ↻</button></div><div class="table-scroll"><table><thead><tr><th>Severity</th><th>Detection</th><th>Source IP</th><th>Destination</th><th>Timestamp</th></tr></thead><tbody id="alerts-table"><tr><td colspan="5" class="empty-cell">No alerts yet.</td></tr></tbody></table></div></article>
+    </section>
+
+    <section class="page" id="page-rules">
+      <div class="page-heading"><div><div class="eyebrow">DETECTION CONFIGURATION</div><h1>Detection <span>Rules</span></h1><p>Inspect the basic rule configured in the Python detector.</p></div></div>
+      <article class="panel rule-card"><div class="rule-head"><span class="action-icon red">⚠</span><div><h3>Possible Port Scan</h3><p>Multiple unique destination ports from one source within a time window.</p></div><span class="severity-tag">HIGH</span></div><div class="rule-details"><div><small>DEFAULT THRESHOLD</small><strong>10 unique ports</strong></div><div><small>TIME WINDOW</small><strong>60 seconds</strong></div><div><small>ENGINE</small><strong>Python detector</strong></div></div><div class="notice"><span>ⓘ</span><p>This rule is configured in <code>config.py</code> and <code>detector.py</code>. This panel documents it; it does not toggle the engine.</p></div></article>
+      <article class="panel rule-card"><div class="rule-head"><span class="action-icon cyan">⌁</span><div><h3>Suricata local rules</h3><p>Separate signature rules for ICMP echo requests and TCP SYN packets.</p></div><span class="severity-tag neutral">CONFIGURED FILE</span></div><p class="muted">Location: <code>rules/local.rules</code>. Suricata must be installed and run separately for these signatures to produce real alerts.</p></article>
+    </section>
+
+    <section class="page" id="page-reports">
+      <div class="page-heading"><div><div class="eyebrow">AUDIT & EXPORT</div><h1>Reports <span>& Logs</span></h1><p>Export the event records analyzed by this application.</p></div></div>
+      <div class="stats-grid two-stats"><article class="stat-card"><div class="stat-top"><span>Recorded events</span><span class="stat-icon">▤</span></div><div class="stat-value" id="report-events">0</div><div class="stat-foot">Available for CSV export</div></article><article class="stat-card"><div class="stat-top"><span>Generated alerts</span><span class="stat-icon">⚠</span></div><div class="stat-value" id="report-alerts">0</div><div class="stat-foot">Current process alert history</div></article></div>
+      <article class="panel export-panel"><div class="export-icon">⇩</div><div><h3>Export network event report</h3><p>Download analyzed event records in CSV format for review in spreadsheet software.</p></div><a class="primary-button export-link" href="/api/export">Download CSV <span>↓</span></a></article>
+      <article class="panel"><div class="panel-heading"><div><h3>Data handling</h3><p>Current application limitations</p></div></div><ul class="plain-list"><li>Records are stored in memory and reset when the server restarts.</li><li>CSV export contains event records, not a permanent audit log.</li><li>Live packet capture and automated blocking are not enabled.</li></ul></article>
+    </section>
+
+    <section class="page" id="page-about">
+      <div class="page-heading"><div><div class="eyebrow">PROJECT INFORMATION</div><h1>About <span>SENTINEL</span></h1><p>A student-built Network Intrusion Detection System project.</p></div></div>
+      <article class="panel about-panel"><div class="about-logo">⬡</div><h2>SENTINEL NIDS</h2><p>A modular learning project for network event analysis, basic rule-based detection and security reporting.</p><div class="rule-details"><div><small>VERSION</small><strong>1.0.0</strong></div><div><small>BACKEND</small><strong>Python + Flask</strong></div><div><small>DETECTION</small><strong>Rule-based</strong></div></div><div class="notice"><span>ⓘ</span><p>Use only on systems and networks you are authorized to monitor. This project does not guarantee detection of all attacks.</p></div></article>
+    </section>
+
+    <footer class="footer"><span>© 2026 SENTINEL NIDS</span><span>BUILT FOR SECURITY LEARNING <b>◆</b></span></footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
